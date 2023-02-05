@@ -1,0 +1,45 @@
+query getRooms {
+  rooms {
+    id
+    token
+    players{
+      id
+      name
+    }
+    host{
+      id
+      name
+    }
+  }
+}
+
+query getRoom {
+  room(input:{
+    id:"63dee0c348e4c14e42aeca3b"
+  }) {
+    id
+    token
+    players{
+      id
+      name
+    }
+    host{
+      id
+      name
+    }
+  }
+}
+
+mutation createRoom {
+  createRoom(input: {
+    	host_name:"next1",
+      token:"next1"
+    }){
+    id
+    token
+    host{
+      id
+      name
+    }
+  }
+}
