@@ -17,6 +17,10 @@ type User {
   score: Int!
 }
 
+type LoginedUser{
+  name: String!
+}
+
 input FetchUser {
   id: String!
 }
@@ -28,18 +32,20 @@ input FetchRoom {
 
 input NewRoom {
   host_name: String!
-  token: String!
+
 }
 
 input NewUser{
   name: String!
 }
 
+
 type Query {
   users: [User!]!
   rooms: [Room!]!
   user(input: FetchUser): User!
   room(input: FetchRoom): Room!
+  loginedUser: LoginedUser!
 }
 
 

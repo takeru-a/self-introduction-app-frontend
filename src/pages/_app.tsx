@@ -6,7 +6,7 @@ import { ApolloProvider } from '@apollo/client';
 function App({ Component, pageProps }: AppProps) {
   const link = createHttpLink({
     uri: "http://localhost:8080/query",
-    // credentials: "include",
+    credentials: "include",
   });
   const client = new ApolloClient({
     cache: new InMemoryCache(),
