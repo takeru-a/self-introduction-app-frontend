@@ -13,9 +13,9 @@ query getRooms {
   }
 }
 
-query getRoom {
+query getRoom($id: String!) {
   room(input:{
-    id:"63dee0c348e4c14e42aeca3b"
+    id:$id
   }) {
     id
     token
@@ -30,10 +30,9 @@ query getRoom {
   }
 }
 
-mutation createRoom {
+mutation createRoom($host_name: String!) {
   createRoom(input: {
-    	host_name:"next1",
-      token:"next1"
+    	host_name:$host_name,
     }){
     id
     token

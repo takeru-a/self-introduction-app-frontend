@@ -2,12 +2,19 @@ import styles from '../styles/Home.module.css'
 import Head from 'next/head'
 import Image from 'next/image'
 import type { NextPage } from "next";
-import { useQuery } from "@apollo/client";
-import { GetRoomsDocument } from "../graphql/dist/client";
-import { GetRoomsQuery } from "../graphql/dist/client";
+import { useQuery, useMutation } from "@apollo/client";
+import { GetRoomsDocument, CreateRoomDocument } from "../graphql/dist/client";
+import { GetRoomsQuery, CreateRoomMutation } from "../graphql/dist/client";
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 const Home: NextPage = () => {
-  const { data } = useQuery<GetRoomsQuery>(GetRoomsDocument)
+  const [name, setName] = useState("")
+  const router = useRouter()
+  const [createRoom, { data } ] = useMutation<CreateRoomMutation>(CreateRoomDocument)
+  if (data){
+    router.push(`room/?c=${data.createRoom.token}`,"room/")
+  }
   return (
     <>
       <Head>
@@ -18,14 +25,97 @@ const Home: NextPage = () => {
       </Head>
       <main>
       <div style={{ margin: "0 auto", width: "1000px" }}>
-        {data?.rooms.map((room) =>(
+        <p>{data?.createRoom.token}</p>
+        {/* {data?.rooms.map((room) =>(
           <div key={room.id}>
             <p>{room.host.name}</p>
             <p>room_id :{room.id}</p>
             <p>token: {room.token}</p>
           </div>
-        ))}
+        ))} */}
       </div>
+      <div className={styles.home}>
+          <div className={styles.frame}>
+            <div className={styles.homediv1}>
+              <div className={styles.homediv2}>
+                <div className={styles.homediv3}>
+                  <div className={styles.homediv4}>
+                    <div className={styles.homediv5}>
+                      <div className={styles.homespan}>
+                        <span className={styles.hometext}>
+                          <span>ユーザ登録</span>
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.homediv6}>
+                      <div className={styles.homesection}>
+                        <div className={styles.homespan1}>
+                          <span className={styles.hometext2}>
+                            <span>ニックネームの入力</span>
+                          </span>
+                          <div className={styles.homeinput}>
+                            <div className={styles.homedivplaceholder}>
+                              <form id="inputform" 
+                              onSubmit={(e)=>{
+                                e.preventDefault();
+                                createRoom({
+                                  variables:{
+                                    host_name: name,
+                                  }
+                                })
+                                // if (data){
+                                //   router.push(`room/?c=${data?.createRoom.token}`,"room/")
+                                // }
+                                setName("");
+                              }}
+                              >
+                                <input 
+                                className={styles.hometext4} 
+                                type="text"
+                                value={name}
+                                onChange={(e) =>{
+                                    setName(e.currentTarget.value)
+                                }}
+                                />
+                                </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.homediv7}>
+                  <button type="submit" 
+                  form="inputform" 
+                  className={styles.homebutton}
+                  >
+                      <div className={styles.homei}>
+                        {/* <Image
+                          src="/imgs/icplaysvg.svg"
+                          height={34}
+                          width={27}
+                          alt="icplaysvg"
+                          className={styles.homeicplaysvg}
+                        /> */}
+                      </div>
+                      <span className={styles.hometext6}>
+                        <span>START</span>
+                      </span>
+                    </button>                  
+                  </div>
+                </div>
+                <Image
+                  src="/images/a.png"
+                  height={105}
+                  width={74}
+                  alt="a"
+                  className={styles.homeimg}
+                  
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </>
   )

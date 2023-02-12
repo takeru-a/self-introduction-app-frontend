@@ -23,6 +23,11 @@ export type FetchUser = {
   id: Scalars['String'];
 };
 
+export type LoginedUser = {
+  __typename?: 'LoginedUser';
+  name: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createRoom: Room;
@@ -41,7 +46,6 @@ export type MutationCreateUserArgs = {
 
 export type NewRoom = {
   host_name: Scalars['String'];
-  token: Scalars['String'];
 };
 
 export type NewUser = {
@@ -50,6 +54,7 @@ export type NewUser = {
 
 export type Query = {
   __typename?: 'Query';
+  loginedUser: LoginedUser;
   room: Room;
   rooms: Array<Room>;
   user: User;
@@ -87,15 +92,24 @@ export type GetRoomsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetRoomsQuery = { __typename?: 'Query', rooms: Array<{ __typename?: 'Room', id: string, token: string, players: Array<{ __typename?: 'User', id: string, name: string }>, host: { __typename?: 'User', id: string, name: string } }> };
 
-export type GetRoomQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetRoomQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
 
 
 export type GetRoomQuery = { __typename?: 'Query', room: { __typename?: 'Room', id: string, token: string, players: Array<{ __typename?: 'User', id: string, name: string }>, host: { __typename?: 'User', id: string, name: string } } };
 
-export type CreateRoomMutationVariables = Exact<{ [key: string]: never; }>;
+export type CreateRoomMutationVariables = Exact<{
+  host_name: Scalars['String'];
+}>;
 
 
 export type CreateRoomMutation = { __typename?: 'Mutation', createRoom: { __typename?: 'Room', id: string, token: string, host: { __typename?: 'User', id: string, name: string } } };
+
+export type GetLoginedUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetLoginedUserQuery = { __typename?: 'Query', loginedUser: { __typename?: 'LoginedUser', name: string } };
 
 
 export const GetRoomsDocument = gql`
@@ -115,8 +129,8 @@ export const GetRoomsDocument = gql`
 }
     `;
 export const GetRoomDocument = gql`
-    query getRoom {
-  room(input: {id: "63dee0c348e4c14e42aeca3b"}) {
+    query getRoom($id: String!) {
+  room(input: {id: $id}) {
     id
     token
     players {
@@ -131,14 +145,21 @@ export const GetRoomDocument = gql`
 }
     `;
 export const CreateRoomDocument = gql`
-    mutation createRoom {
-  createRoom(input: {host_name: "next1", token: "next1"}) {
+    mutation createRoom($host_name: String!) {
+  createRoom(input: {host_name: $host_name}) {
     id
     token
     host {
       id
       name
     }
+  }
+}
+    `;
+export const GetLoginedUserDocument = gql`
+    query getLoginedUser {
+  loginedUser {
+    name
   }
 }
     `;
@@ -153,11 +174,14 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     getRooms(variables?: GetRoomsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetRoomsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetRoomsQuery>(GetRoomsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getRooms', 'query');
     },
-    getRoom(variables?: GetRoomQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetRoomQuery> {
+    getRoom(variables: GetRoomQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetRoomQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetRoomQuery>(GetRoomDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getRoom', 'query');
     },
-    createRoom(variables?: CreateRoomMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateRoomMutation> {
+    createRoom(variables: CreateRoomMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateRoomMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateRoomMutation>(CreateRoomDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createRoom', 'mutation');
+    },
+    getLoginedUser(variables?: GetLoginedUserQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLoginedUserQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetLoginedUserQuery>(GetLoginedUserDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLoginedUser', 'query');
     }
   };
 }
