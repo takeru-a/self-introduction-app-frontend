@@ -2,19 +2,41 @@ import styles from '../styles/Home.module.css'
 import Head from 'next/head'
 import Image from 'next/image'
 import type { NextPage } from "next";
-import { useQuery, useMutation } from "@apollo/client";
-import { GetRoomsDocument, CreateRoomDocument } from "../graphql/dist/client";
-import { GetRoomsQuery, CreateRoomMutation } from "../graphql/dist/client";
+import { useMutation } from "@apollo/client";
+import { CreateRoomDocument, CreateUserDocument } from "../graphql/dist/client";
+import { CreateRoomMutation, CreateUserMutation } from "../graphql/dist/client";
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 
 const Home: NextPage = () => {
   const [name, setName] = useState("")
   const router = useRouter()
-  const [createRoom, { data } ] = useMutation<CreateRoomMutation>(CreateRoomDocument)
-  if (data){
-    router.push(`room/?c=${data.createRoom.token}`,"room/")
+  const token = router.query.c;
+  const [createRoom, { data: room } ] = useMutation<CreateRoomMutation>(CreateRoomDocument)
+  const [createUser, { data: user } ] = useMutation<CreateUserMutation>(CreateUserDocument)
+  const pageTransition = (token :string | string[]) =>{
+    if (!token){
+      createRoom({
+        variables:{
+          host_name: name,
+        }
+      })
+      if (room){
+        router.push(`room/`)
+      }
+    }else{
+      createUser({
+        variables:{
+          name: name,
+          token: token,
+        }
+      })
+      if (user){
+        router.push(`room/`)
+      }
   }
+  }
+
   return (
     <>
       <Head>
@@ -25,14 +47,6 @@ const Home: NextPage = () => {
       </Head>
       <main>
       <div style={{ margin: "0 auto", width: "1000px" }}>
-        <p>{data?.createRoom.token}</p>
-        {/* {data?.rooms.map((room) =>(
-          <div key={room.id}>
-            <p>{room.host.name}</p>
-            <p>room_id :{room.id}</p>
-            <p>token: {room.token}</p>
-          </div>
-        ))} */}
       </div>
       <div className={styles.home}>
           <div className={styles.frame}>
@@ -58,15 +72,14 @@ const Home: NextPage = () => {
                               <form id="inputform" 
                               onSubmit={(e)=>{
                                 e.preventDefault();
-                                createRoom({
-                                  variables:{
-                                    host_name: name,
-                                  }
-                                })
-                                // if (data){
-                                //   router.push(`room/?c=${data?.createRoom.token}`,"room/")
-                                // }
+                                if(token){
+                                  pageTransition(token)
+                                }else{
+                                  pageTransition("")
+                                }
+                          
                                 setName("");
+                                router.push(`room/`)
                               }}
                               >
                                 <input 

@@ -25,7 +25,11 @@ export type FetchUser = {
 
 export type LoginedUser = {
   __typename?: 'LoginedUser';
+  code: Scalars['Int'];
   name: Scalars['String'];
+  roomId: Scalars['String'];
+  roomToken: Scalars['String'];
+  userId: Scalars['String'];
 };
 
 export type Mutation = {
@@ -50,6 +54,7 @@ export type NewRoom = {
 
 export type NewUser = {
   name: Scalars['String'];
+  token: Scalars['String'];
 };
 
 export type Query = {
@@ -79,6 +84,21 @@ export type Room = {
   token: Scalars['String'];
 };
 
+export type Subscriber = {
+  token: Scalars['String'];
+  userId: Scalars['String'];
+};
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  changeRoom: Room;
+};
+
+
+export type SubscriptionChangeRoomArgs = {
+  input: Subscriber;
+};
+
 export type User = {
   __typename?: 'User';
   answer: Scalars['String'];
@@ -106,10 +126,26 @@ export type CreateRoomMutationVariables = Exact<{
 
 export type CreateRoomMutation = { __typename?: 'Mutation', createRoom: { __typename?: 'Room', id: string, token: string, host: { __typename?: 'User', id: string, name: string } } };
 
+export type AddPlayersSubscriptionVariables = Exact<{
+  token: Scalars['String'];
+  userId: Scalars['String'];
+}>;
+
+
+export type AddPlayersSubscription = { __typename?: 'Subscription', changeRoom: { __typename?: 'Room', players: Array<{ __typename?: 'User', id: string, name: string }> } };
+
 export type GetLoginedUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetLoginedUserQuery = { __typename?: 'Query', loginedUser: { __typename?: 'LoginedUser', name: string } };
+export type GetLoginedUserQuery = { __typename?: 'Query', loginedUser: { __typename?: 'LoginedUser', name: string, userId: string, code: number, roomId: string, roomToken: string } };
+
+export type CreateUserMutationVariables = Exact<{
+  name: Scalars['String'];
+  token: Scalars['String'];
+}>;
+
+
+export type CreateUserMutation = { __typename?: 'Mutation', createUser: { __typename?: 'User', id: string, name: string } };
 
 
 export const GetRoomsDocument = gql`
@@ -156,9 +192,31 @@ export const CreateRoomDocument = gql`
   }
 }
     `;
+export const AddPlayersDocument = gql`
+    subscription addPlayers($token: String!, $userId: String!) {
+  changeRoom(input: {token: $token, userId: $userId}) {
+    players {
+      id
+      name
+    }
+  }
+}
+    `;
 export const GetLoginedUserDocument = gql`
     query getLoginedUser {
   loginedUser {
+    name
+    userId
+    code
+    roomId
+    roomToken
+  }
+}
+    `;
+export const CreateUserDocument = gql`
+    mutation createUser($name: String!, $token: String!) {
+  createUser(input: {name: $name, token: $token}) {
+    id
     name
   }
 }
@@ -180,8 +238,14 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     createRoom(variables: CreateRoomMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateRoomMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateRoomMutation>(CreateRoomDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createRoom', 'mutation');
     },
+    addPlayers(variables: AddPlayersSubscriptionVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<AddPlayersSubscription> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AddPlayersSubscription>(AddPlayersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'addPlayers', 'subscription');
+    },
     getLoginedUser(variables?: GetLoginedUserQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetLoginedUserQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetLoginedUserQuery>(GetLoginedUserDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getLoginedUser', 'query');
+    },
+    createUser(variables: CreateUserMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateUserMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateUserMutation>(CreateUserDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createUser', 'mutation');
     }
   };
 }
