@@ -42,3 +42,15 @@ mutation createRoom($host_name: String!) {
     }
   }
 }
+
+subscription addPlayers($token: String!, $userId: String!) {
+  changeRoom(input:{
+    token:$token,
+    userId:$userId,
+    }) {
+    players{
+      id
+      name
+    }
+  }
+}

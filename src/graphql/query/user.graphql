@@ -1,5 +1,19 @@
 query getLoginedUser {
   loginedUser {
-   name
+  name
+  userId
+  code
+  roomId
+  roomToken
+  }
+}
+
+mutation createUser($name: String!, $token: String!) {
+  createUser(input: {
+    	name:$name,
+      token:$token,
+    }){
+    id
+    name
   }
 }
